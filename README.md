@@ -1,6 +1,6 @@
 # Amadeus Android (Kotlin) - How to build an Hotel Booking Engine
 
-In this article, we are going to look at how to build a hotel booking engine with the Amadeus Self-Service APIs on Android. For more information on how the hotel APIs work please take a look at our blog article ["Build a hotel booking engine with Amadeus Self-Service APIs"](https://developers.amadeus.com/blog/build-hotel-booking-engine-amadeus-api).
+In this article, we are going to look at how to build a hotel booking engine with the [Amadeus Self-Service APIs on Android](https://github.com/amadeus4dev/amadeus-android/). For more information on how the hotel APIs work please take a look at our blog article ["Build a hotel booking engine with Amadeus Self-Service APIs"](https://developers.amadeus.com/blog/build-hotel-booking-engine-amadeus-api).
 
 For a good start, plese take a look at our article explaining how to configure and setup your dev environment here: [[insert article link]].
 
@@ -13,7 +13,7 @@ Every screen in the demo is made of a unique fragment to display content, paired
 
 ## Part 0 - Getting the location
 
-Before being able to proceed with Part 1 of the article, we need to get the location where we will search for  hotels, basically where the traveler wants to go. The [Hotel Search API](https://developers.amadeus.com/self-service/category/hotel/api-doc/hotel-search/api-reference) uses the [IATA City Code](https://www.iata.org/en/publications/directories/code-search/) as query parameter. To find a city code based on a city name we will use the [Airport & City Search API](https://developers.amadeus.com/self-service/category/air/api-doc/airport-and-city-search/api-reference) which offers auto-complete search and returns the IATA city code.
+Before being able to proceed with Part 1 of the article, we need to get the location where we will search for  hotels, basically where the traveler wants to go. The [Hotel Search API](https://developers.amadeus.com/self-service/category/hotel/api-doc/hotel-search/api-reference) uses the [IATA City Code](https://www.iata.org/en/publications/directories/code-search/) as query parameter. To find a city code based on a city name we will use the [Airport & City Search API](https://developers.amadeus.com/self-service/category/air/api-doc/airport-and-city-search/api-reference) which offers auto-complete search and returns the IATA city code. There are more parameters that you can use with this endpoint, to keep it simple we will stick with the city name.
 
 We retrieve the user input (name of the city the traveler wants to visit) and we pass it to the view model that processes the data.
 
@@ -48,7 +48,7 @@ fun searchLocations(location: String) {
     }
 ```
 
-We use 3 different LiveData objects to pass information to the fragment which observing.
+We use 3 different LiveData objects to pass information to the UI.
 
 * _loading: is used to notify that a request is ongoing and we should display a loading indicator for the user.
 
@@ -72,7 +72,7 @@ We pass the response of the Airport & City Search API through `_locations` live 
 
 ## Part 1 - Search hotels by location using the Find Hotels endpoint
 
-We will use the first endpoint of the [Hotel Search API](https://developers.amadeus.com/self-service/category/hotel/api-doc/hotel-search/api-reference) to find the list of available hotels in a specific city: we pass the city code obtained earlier, the check-in and check-out dates as query parameters. There are more parameters that you can use with this endpoint, to keep it simple we will stick with those three ones.
+We will use the first endpoint of the [Hotel Search API](https://developers.amadeus.com/self-service/category/hotel/api-doc/hotel-search/api-reference) to find the list of available hotels in a specific city: we pass the city code obtained earlier, the check-in and check-out dates as query parameters.
 
 ```kotlin
 // HotelsOffersViewModel
@@ -181,6 +181,7 @@ private fun fetchRates() {
     }
 }
 ```
+
 As explained in the Hotel Booking Engine tutorial, after selecting a room you need to confirm its price before booking it.
 When the user selects an offer, you can pass the `offerId` to the next screen and call the third endpoint of the Hotel Search API to get the final offer price.
 
