@@ -13,7 +13,7 @@ Every screen in the demo is made of a unique fragment to display content, paired
 
 ## Part 0 - Getting the location
 
-Before being able to proceed with Part 1 of the article, we need to get the location where we will search for  hotels, basically where the traveler wants to go. The [Hotel Search API](https://developers.amadeus.com/self-service/category/hotel/api-doc/hotel-search/api-reference) uses the [IATA City Code](https://www.iata.org/en/publications/directories/code-search/) as query parameter. To find a city code based on a city name we will use the [Airport & City Search API](https://developers.amadeus.com/self-service/category/air/api-doc/airport-and-city-search/api-reference) which offers auto-complete search and returns the IATA city code. There are more parameters that you can use with this endpoint, to keep it simple we will stick with the city name.
+Before being able to proceed with Part 1 of the article, we need to get the location where we will search for  hotels, basically where the traveler wants to go. The [Hotel Search API](https://developers.amadeus.com/self-service/category/hotel/api-doc/hotel-search/api-reference) uses the [IATA City Code](https://www.iata.org/en/publications/directories/code-search/) as query parameter. To find a city code based on a city name we will use the [Airport & City Search API](https://developers.amadeus.com/self-service/category/air/api-doc/airport-and-city-search/api-reference) which offers auto-complete search and returns the IATA city code. There are more parameters that you can use with this endpoint, to keep it simple we will stick with the city code.
 
 We retrieve the user input (name of the city the traveler wants to visit) and we pass it to the view model that processes the data.
 
