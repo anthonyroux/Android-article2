@@ -109,39 +109,51 @@ fun searchByDestination(
 }
 ```
 
-We use the same technique described in Part 0 to pass data to the UI. With this request, it could be useful to use pagination to provide more results to the user.
-This is the reason why we keep track of the request's result.
+We use the same technique described in Part 0 to pass data to the UI.
 
-To request more data, we check if the result has a next link meta using the `result.hasNext()` method and we pass this link to the `amadeus.get(URL)` request.
+With this request, it could be useful to use pagination to provide more results to the user. We did that using [Android Pagination v3](https://developer.android.com/topic/libraries/architecture/paging/v3-overview) component. You can familiarize yourself and setup this library using the [official codelab](https://developer.android.com/codelabs/android-paging). Our demo implementation use the exact same code, therefore this is the class for Amadeus HotelOffers [PagingSource](https://developer.android.com/reference/kotlin/androidx/paging/PagingSource) that you can use.
 
 ```kotlin
-// HotelsOffersViewModel
+class HotelsOffersPagingSource(
+    private val destination: String,
+    private val checkInDate: String,
+    private val checkOutDate: String
+) : PagingSource<ApiResult.Success<List<HotelOffer>>, HotelOffer>() {
 
-fun loadMore() {
-    viewModelScope.launch {
-        latestResult?.let {
-            if (it.hasNext() == false) return
-            when (val next = SampleApplication.amadeus.next(it)) {
-                is Success -> {
-                    if (next.data.isNotEmpty()) {
-                        val list = mutableListOf<HotelOffer>().apply {
-                            addAll(latestResult.data)
-                            addAll(next.data)
-                        }
-                        latestResult = next
-                        _hotelOffers.value = list
-                    } else {
-                        //call return without data
-                        error.value = "No result for your research"
-                    }
-                }
-            }
+    private val amadeus = SampleApplication.amadeus
+
+    override suspend fun load(params: LoadParams<ApiResult.Success<List<HotelOffer>>>): LoadResult<ApiResult.Success<List<HotelOffer>>, HotelOffer> {
+        val key: ApiResult.Success<List<HotelOffer>>? = params.key
+        val response = when {
+            // We should load next page
+            params is LoadParams.Append && key != null -> amadeus.next(key)
+            // We should load previous page
+            params is LoadParams.Prepend && key != null -> amadeus.previous(key)
+            // We should refresh using `amadeus.self()` only if key is not null
+            params is LoadParams.Refresh && key != null -> amadeus.self(key)
+            // Key is null, we should query the api
+            else -> amadeus.shopping.hotelOffers.get(
+                cityCode = destination,
+                checkInDate = checkInDate,
+                checkOutDate = checkOutDate,
+                // We use the same page size set in PageConfig
+                pageLimit = HotelsOffersViewModel.NETWORK_PAGE_SIZE
+            )
+        }
+        return when (response) {
+            is ApiResult.Success -> LoadResult.Page(
+                data = response.data,
+                prevKey = if (response.hasPrevious()) response else null,
+                nextKey = if (response.hasNext()) response else null
+            )
+            else -> LoadResult.Error(IllegalStateException("Impossible to load requested page"))
         }
     }
+
 }
 ```
 
-The demo contains an example of how you can implement the `next` call, with a loading indicator at the bottom of the list. It's using a wrapper object to differentiate between real results and list loading indicator who launch next request when displayed. You should use the way that suits best your architecture. Note that the Android Jetpack Components have a library for that [Paging 3.0.0](https://developer.android.com/topic/libraries/architecture/paging), but it was still in development at the moment of this article.
+Amadeus Android SDK pagination is build around ApiResult.Success meta links informations. That's why we use the response object in `LoadResult.Page()` prevKey and nextKey.
 
 Once the user selects a hotel, we can use the second endpoint to show all the available offers (combinations of rooms, services and prices).
 
